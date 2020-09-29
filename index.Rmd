@@ -1,0 +1,35 @@
+--- 
+title: "R for data Science Revision Notes"
+author: "Wilbrod Ntawiha"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: "These are revision notes by @wilbrodnk from R for data science book, written by Garrett Grolemund and Hadley Wickham, see [@r4ds]: https://r4ds.had.co.nz/"
+---
+
+# Introduction {-}
+
+
+Key to note is the data science process flow
+
+1. Import the data
+2. Wrangle (tidy + transform)
+3. Visualisation
+4. Models
+5. Communication
+
+> Note that **Programming** cuts across in all the steps
+
+In addition to the above, in my industry, it sometimes looks like this:
+
+`r knitr::include_graphics("./images/stat_model.JPG") `
+
+And when there is predictive modlelling, the process flow can egt a little confusing:
+
+`r knitr::include_graphics("./images/pred_model.JPG") `
+
+*The order of notes follow the R4DS book not the data science workflow.*
+
