@@ -2,6 +2,7 @@
 title: "3 Data visualisation"
 output: html_notebook
 ---
+# 3 Data visualisation: ggplot2 package
 
 ## first steps
 
