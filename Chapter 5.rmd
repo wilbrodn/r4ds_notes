@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## 5 Data transformation
+
+###  Introduction
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+
+```
+
+Take careful note of the conflicts message that’s printed when you load the tidyverse. It tells you that dplyr overwrites some functions in base R. If you want to use the base version of these functions after loading dplyr, you’ll need to use their full names: stats::filter() and stats::lag().
+
+These describe the type of each variable:
+
+int stands for integers.
+
+dbl stands for doubles, or real numbers.
+
+chr stands for character vectors, or strings.
+
+dttm stands for date-times (a date + a time).
+
+lgl stands for logical, vectors that contain only TRUE or FALSE.
+
+fctr stands for factors, which R uses to represent categorical variables with fixed possible values.
+
+date stands for dates.
+
+
+#####  data manipulation challenges covered:
+
+Pick observations by their values (filter()).
+Reorder the rows (arrange()).
+Pick variables by their names (select()).
+Create new variables with functions of existing variables (mutate()).
+Collapse many values down to a single summary (summarise()).
+
+These can all be used in conjunction with group_by() which changes the scope of each function from operating on the entire dataset to operating on it group-by-group. These six functions provide the verbs for a language of data manipulation.
+
+All verbs work similarly:
+
+1. The first argument is a data frame.
+
+2. The subsequent arguments describe what to do with the data frame, using the variable names (without quotes).
+
+3. The result is a new data frame.
+
+Together these properties make it easy to chain together multiple simple steps to achieve a complex result.
+
+```{r}
+## Computers use finite precision arithmetic (they obviously can’t store an infinite number of digits!) so remember that every number you see is an approximation. Instead of relying on ==, use near() for floating point numbers
+
+sqrt(2) ^ 2 == 2
+near(sqrt(2) ^ 2 , 2)
+
+1/49*49 == 1
+near(1/49*49, 1)
+
+```
+
+
+
+
+
+
+
