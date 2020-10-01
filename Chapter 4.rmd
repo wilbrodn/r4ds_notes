@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# 4 Workflow: basics
+
+_Frustration is natural when you start programming in R, because it is such a stickler for punctuation, and even one character out of place will cause it to complain. But while you should expect to be a little frustrated, take comfort in that it’s both typical and temporary: it happens to everyone, and the only way to get over it is to keep trying._
+
+### Basics
+
+* You can use R as a calculator:
+* You can create new objects with <-
+
+_All R statements where you create objects, assignment statements, have the same form: object_name <- value. When reading that code say “object name gets value” in your head. You will make lots of assignments and <- is a pain to type. Don’t be lazy and use =, it will work, but it will cause confusion later. Instead, use RStudio’s keyboard shortcut: Alt + - (the minus sign). Notice that RStudio automagically surrounds <- with spaces, which is a good code formatting practice. Code is miserable to read on a good day, so giveyoureyesabreak and use spaces._
+
+
+### What’s in a name?
+
+Object names must start with a letter, and can only contain letters, numbers, _ and .. You want your object names to be descriptive, so you’ll need a convention for multiple words. I recommend snake_case where you separate lowercase words with _.
+
+* i_use_snake_case
+* otherPeopleUseCamelCase
+* some.people.use.periods
+* And_aFew.People_RENOUNCEconvention
+
+**Typos matter. Case matters.**
+
+##  Calling functions
+
+```{r}
+(x <- seq(1, to = 10, by = 2))
+```
+
+* Quotation marks and parentheses must always come in a pair.
+
+### 4.4 Exercises
+
+1. variable names are different
+
+2. 
+
+```{r}
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+```
+
+
+3. Tools -> Key board shortcuts help (Alt + Shift + K)
+
+
+
+
+
+
+
+
