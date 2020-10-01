@@ -29,7 +29,7 @@ Object names must start with a letter, and can only contain letters, numbers, _ 
 ##  Calling functions
 
 ```{r}
-(x <- seq(1, to = 10, by = 2))
+(x <- seq(1, to = 10, by = 2)) ## this automatically prints x
 ```
 
 * Quotation marks and parentheses must always come in a pair.
