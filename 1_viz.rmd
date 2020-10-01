@@ -7,5 +7,7 @@ This is related to Chapter 3. Data visualisation.
 
 ```{r}
 
+flights
+
 ```
 
