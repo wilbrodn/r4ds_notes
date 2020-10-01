@@ -2,8 +2,7 @@
 title: "R Notebook"
 output: html_notebook
 ---
-
-## 5 Data transformation
+# 5 Data transformation: dplyr package
 
 ###  Introduction
 
@@ -63,8 +62,53 @@ near(1/49*49, 1)
 
 ```
 
+### 5.2 filter()
 
+filter() allows you to subset observations based on their values. The first argument is the name of the data frame. The second and subsequent arguments are the expressions that filter the data frame
 
+```{r}
+glimpse(flights)
+
+(jan1 <- filter(flights, month == 1, day == 1))
+
+#A useful short-hand for this problem is x %in% y. This will select every row where x is one of the values in y.
+(jan_feb <- filter(flights, month == 1 | month == 2))
+#same as
+(jan_feb <- filter(flights, month %in% c(1,2)))
+
+```
+
+As well as & and |, R also has && and ||. Don’t use them here! You’ll learn when you should use them in conditional execution.
+
+_Missing values_
+
+ missing values, or NAs (“not availables”). NA represents an unknown value so missing values are “contagious”: almost any operation involving an unknown value will also be unknown.
+ 
+```{r}
+NA >5; NA==1; NA/2; 
+##The most confusing result is this one:
+NA==NA
+
+x<-NA; y <- NA
+
+x==y
+
+#If you want to determine if a value is missing, use is.na():
+
+is.na(x)
+```
+
+filter() only includes rows where the condition is TRUE; it excludes both FALSE and NA values. If you want to preserve missing values, ask for them explicitly:
+
+```{r}
+df <- tibble(x = c(2,3,1, NA))
+filter(df, x>1)
+filter(df, x!=1) ##excludes NA
+
+filter(df, x>1 | is.na(x)) ## to include NA into the result
+```
+
+### 5.2.4 Exercises
 
 
 
