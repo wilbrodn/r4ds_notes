@@ -169,7 +169,7 @@ ggplot(data = mpg)+
 
 ```
 
-### 3.5 Facets
+## 3.5 Facets
 
 Facets helps us add a discrete variable in addition to other variables in aes()
 
@@ -220,7 +220,7 @@ ggplot(data = mpg) +
 6. To maintain the landscape view of the overall image
 
 
-### 3.6 Geometric objects
+## 3.6 Geometric objects
 
 *A geom is the geometrical object that a plot uses to represent data.*
 
@@ -480,16 +480,258 @@ ggplot(data = diamonds) +
 
 ## 3.8 Position adjustments
 
+You can colour a bar chart using either the colour aesthetic, or, more usefully, fill
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+Position adjustment can be achieved by using options "identity", "dodge" or "fill"
+
+* position = "identity" will place each object as it falls in the context of the graph. This is not very useful for bars, because it overlaps them. To see that overlapping we either need to make the bars slightly transparent by setting alpha to a small value, or completely transparent by setting fill = NA
+
+```{r}
+ggplot(data=diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(position = "identity", alpha = 1/5)
+ggplot(data=diamonds, mapping = aes(x = cut, colour = clarity)) +
+  geom_bar(position = "identity", fill = NA)
+```
+
+* position = "fill" works like stacking, but makes each set of stacked bars the same height. This makes it easier to compare proportions across groups.
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x=cut, fill = clarity)) + 
+  geom_bar(position = "fill")
+```
+
+* position = "dodge" places overlapping objects directly beside one another. This makes it easier to compare individual values.
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity))+
+  geom_bar(position = "dodge")
+```
+
+* Scatter plots. The values of hwy and displ are rounded so the points appear on a grid and many points overlap each other. This problem is known as overplotting. This arrangement makes it hard to see where the mass of the data is. Are the data points spread equally throughout the graph, or is there one special combination of hwy and displ that contains 109 values?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(position = "jitter")
+```
+
+### 3.8.1 Exercises
+> 1. What is the problem with this plot? How could you improve it?
+
+it may be not showing the points spread on the graph. Add position = "jitter".
+
+_There is overplotting because there are multiple observations for each combination of cty and hwy values. I would improve the plot by using a jitter position adjustment to decrease overplotting._
+
+_The relationship between cty and hwy is clear even without jittering the points but jittering shows the locations where there are more observations._
+
+> 2. What parameters to geom_jitter() control the amount of jittering?
+
+From the geom_jitter() documentation, there are two arguments to jitter:
+
+width controls the amount of horizontal displacement, and
+height controls the amount of vertical displacement.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(position = "jitter")
+##Same as below
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(position = position_jitter())
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(position = position_jitter(width = 10, height = 10))
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_jitter(width = 10, height = 10)
+
+```
+
+
+
+
+> 3. Compare and contrast geom_jitter() with geom_count().
+
+geom_jitter() uses stat = "identity", while geom_count() uses stat = "sum".
+geom_jitter() uses position = "jitter" while geom_count() uses position = "identity"
+
+_The geom geom_jitter() adds random variation to the locations points of the graph. In other words, it “jitters” the locations of points slightly. This method reduces overplotting since two points with the same location are unlikely to have the same random variation. However, the reduction in overlapping comes at the cost of slightly changing the x and y values of the points._
+
+
+_The geom geom_count() sizes the points relative to the number of observations. Combinations of (x, y) values with more observations will be larger than those with fewer observations._
+
+_The geom_count() geom does not change x and y coordinates of the points. However, if the points are close together and counts are large, the size of some points can itself create overplotting. For example, in the following example, a third variable mapped to color is added to the plot. In this case, geom_count() is less readable than geom_jitter() when adding a third variable as a color aesthetic._
+
+```{r}
+ggplot(data = mpg, aes(x = hwy, y = cty, color = drv)) +
+  geom_count()
+
+ggplot(data = mpg, aes(x = hwy, y = cty, color = drv)) +
+  geom_jitter()
+```
+
+_Combining geom_count() with jitter, which is specified with the position argument to geom_count() rather than its own geom, helps overplotting a little._
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy, color = class)) +
+  geom_count(position = "jitter")
+```
+
+
+> 4. What’s the default position adjustment for geom_boxplot()? Create a visualisation of the mpg dataset that demonstrates it.
+
+  position = "dodge2"
+  
+_The default position for geom_boxplot() is "dodge2", which is a shortcut for position_dodge2. This position adjustment does not change the vertical position of a geom but moves the geom horizontally to avoid overlapping other geoms._
+
+_If position_identity() is used the boxplots overlap._
+
+```{r}
+ggplot(mpg, mapping = aes(x = displ, y = hwy))+
+  geom_boxplot()
+
+ggplot(mpg, mapping = aes(x = displ, y = hwy, colour = drv))+
+  geom_boxplot()
+ggplot(mpg, mapping = aes(x = class, y = hwy, colour = drv))+
+  geom_boxplot()
+
+ggplot(mpg, mapping = aes(x = class, y = hwy, colour = drv))+
+  geom_boxplot(position = "identity")
+```
+
+
+### 3.9 Coordinate systems
+
+There are a number of other coordinate systems that are occasionally helpful.
+
+* coord_flip() switches the x and y axes.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy, color = class)) + geom_boxplot()
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy, color = class)) + geom_boxplot() + coord_flip()
+```
+
+* coord_quickmap() sets the aspect ratio correctly for maps. This is very important if you’re plotting spatial data with ggplot2 (which unfortunately we don’t have the space to cover in this book).
+
+```{r}
+ug <- map_data("world")
+
+ggplot(ug, aes(long, lat, group = group)) +
+  geom_polygon(fill = "brown", colour = "red")
+
+ggplot(ug, aes(long, lat, group = group)) +
+  geom_polygon(fill = "brown", colour = "red") + coord_quickmap()
+
+```
+ 
+
+* coord_polar() uses polar coordinates. Polar coordinates reveal an interesting connection between a bar chart and a Coxcomb chart.
+
+```{r}
+bar <- ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut), show.legend = FALSE, width = 1)+
+  labs(x = NULL, y = NULL)
+bar
+bar + coord_flip()
+bar + coord_polar()
+
+```
+
+3.9.1 Exercises
+
+> 1. Turn a stacked bar chart into a pie chart using coord_polar().
+
+```{r}
+stack <- ggplot(mpg, aes(x = factor(1), fill = drv)) +
+  geom_bar(width = 1)
+stack
+
+stack+coord_polar()
+#The argument theta = "y" maps y to the angle of each section.
+
+stack + coord_polar(theta = "y")
+
+```
+
+
+
+see above
+
+> 2. What does labs() do? Read the documentation.
+
+It helps us modify axes, legends and plot labels such as title, subtitle, legend, caption, tags, etc.
+
+_The labs() function is not the only function that adds titles to plots. The xlab(), ylab(), and x- and y-scale functions can add axis titles. The ggtitle() function adds plot titles._
+
+
+> 3. What’s the difference between coord_quickmap() and coord_map()?
+
+coord_quickmap is a quick approximation of a map on 2D that does preserve straight lines. coord_map requires mapproj package.
+
+```{r}
+ggplot(data = ug, mapping = aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "brown", colour = "red") + coord_quickmap()
+
+# ggplot(data = ug, mapping = aes(x = long, y = lat, group = group)) +
+#   geom_polygon(fill = "brown", colour = "red") + coord_map()
+```
+
+_The coord_map() function uses map projections to project the three-dimensional Earth onto a two-dimensional plane. By default, coord_map() uses the Mercator projection. This projection is applied to all the geoms in the plot. The coord_quickmap() function uses an approximate but faster map projection. This approximation ignores the curvature of Earth and adjusts the map for the latitude/longitude ratio. The coord_quickmap() project is faster than coord_map() both because the projection is computationally easier, and unlike coord_map(), the coordinates of the individual geoms do not need to be transformed._
+
+> 4. What does the plot below tell you about the relationship between city and highway mpg? Why is coord_fixed() important? What does geom_abline() do?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline() + ##It provides a reference line for a line of symmetry
+  coord_fixed() ## It helps balance points on the same scale
+```
+
+_The function coord_fixed() ensures that the line produced by geom_abline() is at a 45-degree angle. A 45-degree line makes it easy to compare the highway and city mileage to the case in which city and highway MPG were equal._
+
+_On average, humans are best able to perceive differences in angles relative to 45 degrees. See Cleveland (1993b), Cleveland (1994),Cleveland (1993a), Cleveland, McGill, and McGill (1988), Heer and Agrawala (2006) for discussion on how the aspect ratio of a plot affects perception of the values it encodes, evidence that 45-degrees is generally the optimal aspect ratio, and methods to calculate the optimal aspect ratio of a plot. The function ggthemes::bank_slopes() will calculate the optimal aspect ratio to bank slopes to 45-degrees._
+
+
+## 3.10 The layered grammar of graphics
+
+
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+
+
+_You could use this method to build any plot that you imagine. In other words, you can use the code template that you’ve learned in this chapter to build hundreds of thousands of unique plots._
 
 
 
 
 
 
+<br>
 
+### References
 
+Cleveland, William S. 1993a. “A Model for Studying Display Methods of Statistical Graphics.” Journal of Computational and Graphical Statistics 2 (4). Taylor & Francis: 323–43. https://doi.org/10.1080/10618600.1993.10474616.
 
+Cleveland, William S. 1993b. Visualizing Information. Hobart Press.
 
+Cleveland, William S. 1994. The Elements of Graphing Data. Hobart Press.
 
+Cleveland, William S., Marylyn E. McGill, and Robert McGill. 1988. “The Shape Parameter of a Two-Variable Graph.” Journal of the American Statistical Association 83 (402). [American Statistical Association, Taylor & Francis, Ltd.]: 289–300. https://www.jstor.org/stable/2288843.
 
-
+Heer, Jeffrey, and Maneesh Agrawala. 2006. “Multi-Scale Banking to 45º.” Ieee Transactions on Visualization and Computer Graphics 12 (5, September/October). https://doi.org/10.1109/TVCG.2006.163.
