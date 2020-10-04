@@ -487,18 +487,82 @@ popular_dests %>%
 
 ```
 
-#### 5.7.1 Exercises
+#### 5.6.1 Exercises
+
+> 2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).
+
+```{r}
+not_cancelled %>%
+  group_by(dest) %>%
+  summarise(n = length(dest))
+
+not_cancelled %>%
+  group_by(dest) %>%
+  summarise(n = n())
+
+not_cancelled %>%
+  group_by(tailnum) %>%
+  tally()
+
+#we can replicate count() by combining the group_by() and summarise() verbs. But this time instead of using length(), we will use sum() with the weighting variable.
+
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(n = sum(distance))
+
+not_cancelled %>%
+  group_by(tailnum) %>%
+  tally(distance)
+
+```
+
+
+#### Exercise 5.7.1
+
+> 1. Refer back to the lists of useful mutate and filtering functions. Describe how each operation changes when you combine it with grouping.
+
+_Summary functions (mean()), offset functions (lead(), lag()), ranking functions (min_rank(), row_number()), operate within each group when used with group_by() in mutate() or filter(). Arithmetic operators (+, -), logical operators (<, ==), modular arithmetic operators (%%, %/%), logarithmic functions (log) are not affected by group_by._
+
+```{r}
+#The plane with the worst on time record that flew at least 20 flights is:
+flights %>%
+  filter(!is.na(tailnum), is.na(arr_time) | !is.na(arr_delay)) %>%
+  mutate(on_time = !is.na(arr_time) & (arr_delay <= 0)) %>%
+  group_by(tailnum) %>%
+  summarise(on_time = mean(on_time), n = n()) %>%
+  filter(n >= 20) %>%
+  filter(min_rank(on_time) == 1)
+```
 
 
 
+# Chapter 6, 7, 8
+
+> “There are no routine statistical questions, only questionable statistical routines.” — Sir David Cox
+
+> “Far better an approximate answer to the right question, which is often vague, than an exact answer to the wrong question, which can always be made precise.” — John Tukey
 
 
+In summary, RStudio projects give you a solid workflow that will serve you well in the future:
 
+* Create an RStudio project for each data analysis project.
 
+* Keep data files there; we’ll talk about loading them into R in [data import].
 
+* Keep scripts there; edit them, run them in bits or as a whole.
 
+* Save your outputs (plots and cleaned data) there.
 
+* Only ever use relative paths, not absolute paths.
 
+* Everything you need is in one place, and cleanly separated from all the other projects that you are working on.
+
+```{r}
+string <- c("Hiphopopotamus", "Rhymenoceros", "time for bottomless lyrics")
+pattern <- "tam" 
+stringr::str_extract(string, pattern)
+
+```
 
 
 
