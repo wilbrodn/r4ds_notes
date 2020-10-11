@@ -1,10 +1,346 @@
 ---
-title: "Chapter 9"
+title: "Chapter 9 to 16: Wrangle"
 outtput: html_notebook
 ---
+# Wrangle
+
+## 10 Tibbles
+
+### Exercise 10
+
+> How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
+
+1. print the df
+2. use is_tibble()
+3. use class(); should return tbl_df, tbl, data.frame
+
+> If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
+
+_You can use the double bracket, like df[[var]]. You cannot use the dollar sign, because df$var would look for a column named var._
+
+```{r}
+library(tidyverse)
+annoying <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + rnorm(length(`1`))
+)
+annoying[["1"]]
+annoying$`1`
+
+mutate(annoying, `3` = `2` / `1`) ##doesn't create 3
+glimpse(annoying)
+
+annoying <- mutate(annoying, `3` = `2` / `1`)
+glimpse(annoying)
+
+annoying <- rename(annoying, one = `1`, two = `2`, three = `3`)
+glimpse(annoying)
+
+```
+
+> What does tibble::enframe() do? When might you use it?
+
+The function tibble::enframe() converts named vectors to a data frame with names and values
+
+```{r}
+enframe(c(a = 1, b = 2, c = 3))
+```
+
+> What option controls how many additional column names are printed at the footer of a tibble?
+
+The help page for the print() method of tibble objects is discussed in ?print.tbl. The n_extra argument determines the number of extra columns to print information for.
+
+## 11 Data import
+
+### Exercise 11
+
+> What function would you use to read a file where fields were separated with “|”?
+
+read_delim(file, delim = "|")
+
+> Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?
+
+```{r}
+intersect(names(formals(read_csv)), names(formals(read_tsv)))
+#In fact, the two functions have the exact same arguments:
+identical(names(formals(read_csv)), names(formals(read_tsv)))
+```
+
+> What are the most important arguments to read_fwf()?
+
+col_positions() which tells where data begin and end.
+
+> Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
+
+For read_delim(), we will will need to specify a delimiter, in this case ",", and a quote argument.
+
+```{r}
+
+x <- "x,y\n1,'a,b'"
+read_delim(x, ",") ##without quote argument
+read_delim(x, ",", quote = "'") 
+#read_csv() now supports a quote argument, so the following code works.
+read_csv(x, quote = "'")
+
+```
+
+> Identify what is wrong with each of the following inline CSV files. What happens when you run the code?
+
+```{r}
+read_csv("a,b\n1,2,3\n4,5,6")
+#Only two columns are specified in the header “a” and “b”, but the rows have three columns, so the last column is dropped.
+read_csv("a,b,c\n1,2\n1,2,3\n4,5,6, 7")
+
+read_csv("a,b\n\"1") #The opening quote is dropped
+read_csv("a,b\n1,2\na,b") ##Both variables are treated as character vectors
+
+read_csv("a;b\n1;3") ## wrong delimeter used
+read_csv2("a;b\n1;3")
+read_delim("a;b\n1;3", ";")
+
+```
 
 
+### 11.3 Parsing a vector
 
+> What are the most important arguments to locale()?
+
+The locale object has arguments to set the following:
+
+* date and time formats: date_names, date_format, and time_format
+* time zone: tz
+* numbers: decimal_mark, grouping_mark
+* encoding: encoding
+
+> What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default value of grouping_mark when you set decimal_mark to ","? What happens to the default value of decimal_mark when you set the grouping_mark to "."?
+
+```{r}
+locale(decimal_mark = ",")
+locale(grouping_mark = ".")
+locale(decimal_mark = ",", grouping_mark = ",") ##returns error
+```
+
+> Dates and time
+
+```{r}
+parse_date("1 janvier 2015", "%d %B %Y", locale = locale("fr"))
+parse_date("14 oct. 1979", "%d %b %Y", locale = locale("fr"))
+
+##setting custom locales
+custom_local <- locale(date_format = "Day %d Mon %M Year %y",
+                       time_format = "Sec %S Min %M Hour %H")
+weird_date <- c("Day 07 Mon 10 Year 20", "Day 01 Mon 03 Year 97")
+parse_date(weird_date)
+parse_date(weird_date, locale = custom_local)
+
+time_custom <- c("Sec 01 Min 02 Hour 03", "Sec 03 Min 02 Hour 01")
+parse_time(time_custom)
+parse_time(time_custom, locale = custom_local)
+```
+
+> Programs that identify the encoding of text include:
+
+readr::guess_encoding()
+stringi::str_enc_detect()
+iconv
+chardet (Python)
+
+## 12 Tidy data
+
+#### 12.3 Pivoting
+
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+```
+
+_The functions pivot_longer() and pivot_wider() are not perfectly symmetrical because column type information is lost when a data frame is converted from wide to long. The function pivot_longer() stacks multiple columns which may have had multiple data types into a single column with a single data type. This transformation throws away the individual data types of the original columns. The function pivot_wider() creates column names from values in column. These column names will always be treated as character values by pivot_longer() so if the original variable used to create the column names did not have a character data type, then the round-trip will not reproduce the same dataset._
+
+In the current version of tidyr, the names_ptype argument does not convert the year column to a numeric vector, and it will raise an error.
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+
+stocks %>% pivot_wider(names_from = year, values_from = return) %>%
+  pivot_longer(cols = c(`2015`, `2016`), names_to = "year", values_to = "return", names_ptype = list(year = double()))
+
+
+```
+
+Instead, use the names_transform argument to pivot_longer(), which provides a function to coerce the column to a different data type.
+
+```{r}
+stocks %>% pivot_wider(names_from = year, values_from = return) %>%
+  pivot_longer(cols = c(`2015`, `2016`), names_to = "year", values_to = "return", names_transform = list(year = as.numeric))
+```
+
+#### Exercise 12.3.3
+> What would happen if you widen this table? Why? How could you add a new column to uniquely identify each value?
+
+```{r}
+people <- tribble(
+  ~name, ~key, ~value,
+  #-----------------|--------|------
+  "Phillip Woods",  "age", 45,
+  "Phillip Woods", "height", 186,
+  "Phillip Woods", "age", 50,
+  "Jessica Cordero", "age", 37,
+  "Jessica Cordero", "height", 156
+)
+people
+people%>%pivot_wider(names_from = name, values_from = value)
+
+people%>% group_by(name, key)%>%mutate(obs = row_number()) %>%
+  pivot_wider(names_from = name, values_from = value)
+
+#Another way to solve this problem is by keeping only distinct rows of the name and key values, and dropping duplicate rows.
+people%>%distinct(name, key, .keep_all = T)%>%
+  pivot_wider(names_from = "name", values_from = "value")
+
+```
+
+> Tidy the simple tibble below. Do you need to make it wider or longer? What are the variables?
+
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes", NA, 10,
+  "no", 20, 12)
+
+preg
+pivot_longer(preg, cols = c("male", "female"), names_to = "sex", values_to = "freq")
+
+## we can as well drop the nas
+preg%>%pivot_longer(cols = c("male", "female"), names_to = "sex", values_to = "freq", values_drop_na = T)
+
+```
+
+#### 12.4 Separating and uniting
+
+> What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f", "h,i,j"))%>%
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e,f, g", "h,i,j"))%>%
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e", "h,i,j"))%>%
+  separate(x, c("one", "two", "three"))
+
+##using extra argument
+tibble(x = c("a,b,c", "d,e,f, g", "h,i,j"))%>%
+  separate(x, c("one", "two", "three"), extra = "drop")
+tibble(x = c("a,b,c", "d,e,f, g", "h,i,j"))%>%
+  separate(x, c("one", "two", "three"), extra = "merge")
+
+##Using fill option
+
+tibble(x = c("a,b,c", "d,e", "f,g,h")) %>%
+  separate(x, c("one", "two", "three"), fill = "left")
+
+```
+
+> Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE
+
+_The remove argument discards input columns in the result data frame. You would set it to FALSE if you want to create a new variable, but keep the old one._
+
+> Compare and contrast separate() and extract(), Why are there three variations of separation (by position, by separator, and with groups), but only one unite?
+
+```{r}
+##separators
+tibble(x = c("X_1", "X_2", "AA_1", "AA_2")) %>%
+  separate(x, c("var", "into"), sep = "_")
+##positions
+tibble(x = c("X1", "X2", "A1", "A2")) %>%
+  separate(x, c("var", "into"), sep = c(1))
+
+#The function extract() uses a regular expression to specify groups in character vector and split that single character vector into multiple columns. This is more flexible than separate() because it does not require a common separator or specific column positions.
+tibble(x = c("X_1", "X_2", "AA_1", "AA_2")) %>%
+  extract(x, c("var", "into"), regex = "([A-Z]+)_([0-9])", remove = F)
+
+#Both separate() and extract() convert a single column to many columns. However, unite() converts many columns to one, with a choice of a separator to include between column values.
+
+tibble(variable = c("X", "X", "Y", "Y"), id = c(1, 2, 1, 2)) %>%
+  unite(x, variable, id, sep = "_")
+```
+
+
+#### 12.5 Missing values
+>Compare and contrast the fill arguments to pivot_wider() and complete().
+
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return,
+              values_fill = 0)
+
+stocks %>% 
+ complete(year, qtr, fill=list(return=0))
+```
+
+> What does the direction argument to fill() do?
+
+With fill, the direction determines whether NA values should be replaced by the previous non-missing value ("down") or the next non-missing value ("up").
+
+#### 12.6 Case Study
+
+```{r}
+glimpse(who)
+who1 <- who  %>% pivot_longer( cols = new_sp_m014:newrel_m65,
+                               names_to = "key", values_to = "cases", 
+                               values_drop_na = TRUE)
+who1
+who2 <- who1 %>% 
+  mutate(names_from = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_") 
+who3
+
+who3%>%count(new)
+
+who4 <- who3 %>%
+  select(-new, -iso2, -iso3)
+who4
+who5 <- who4 %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+
+#If iso2 and iso3 are redundant with country, then, within each country, there should only be one distinct combination of iso2 and iso3 values, which is the case.
+select(who3, country, iso2, iso3) %>% distinct() %>%
+  group_by(country)%>% filter(n()>1)
+
+#For each country, year, and sex compute the total number of cases of TB. Make an informative visualization of the data.
+who5 %>% group_by(country, year, sex) %>% filter(year>1995) %>%
+  summarise(cases = sum(cases)) %>% unite(country_sex, country, sex, remove = FALSE) %>%
+  ggplot(aes(x = year, y = cases, group = country_sex, colour = sex)) +geom_line()
+```
+
+
+## 13 Relational data
+
+```{r}
+library("tidyverse")
+library("nycflights13")
+library("viridis")
+library("datamodelr") #The datamodelr package is used to draw database schema. devtools::install_github("bergant/datamodelr")
+```
 
 
 
