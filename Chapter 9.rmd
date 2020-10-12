@@ -342,7 +342,11 @@ library("viridis")
 library("datamodelr") #The datamodelr package is used to draw database schema. devtools::install_github("bergant/datamodelr")
 ```
 
+#### 13.2 nycflights13
 
+> Imagine you wanted to draw (approximately) the route each plane flies from its origin to its destination. What variables would you need? What tables would you need to combine?
+
+Latitude and longitude of the origin and destination for each flight.
 
 
 
