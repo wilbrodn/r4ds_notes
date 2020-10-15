@@ -2,6 +2,7 @@
 title: "Chapter 9 to 16: Wrangle"
 outtput: html_notebook
 ---
+
 # Wrangle
 
 ## 10 Tibbles
@@ -10,13 +11,13 @@ outtput: html_notebook
 
 > How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
 
-1. print the df
-2. use is_tibble()
-3. use class(); should return tbl_df, tbl, data.frame
+1.  print the df
+2.  use is\_tibble()
+3.  use class(); should return tbl\_df, tbl, data.frame
 
-> If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
+> If you have the name of a variable stored in an object, e.g. var \<- "mpg", how can you extract the reference variable from a tibble?
 
-_You can use the double bracket, like df[[var]]. You cannot use the dollar sign, because df$var would look for a column named var._
+*You can use the double bracket, like df[[var]]. You cannot use the dollar sign, because df\$var would look for a column named var.*
 
 ```{r}
 library(tidyverse)
@@ -48,17 +49,17 @@ enframe(c(a = 1, b = 2, c = 3))
 
 > What option controls how many additional column names are printed at the footer of a tibble?
 
-The help page for the print() method of tibble objects is discussed in ?print.tbl. The n_extra argument determines the number of extra columns to print information for.
+The help page for the print() method of tibble objects is discussed in ?print.tbl. The n\_extra argument determines the number of extra columns to print information for.
 
 ## 11 Data import
 
 ### Exercise 11
 
-> What function would you use to read a file where fields were separated with “|”?
+> What function would you use to read a file where fields were separated with "\|"?
 
-read_delim(file, delim = "|")
+read\_delim(file, delim = "\|")
 
-> Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?
+> Apart from file, skip, and comment, what other arguments do read\_csv() and read\_tsv() have in common?
 
 ```{r}
 intersect(names(formals(read_csv)), names(formals(read_tsv)))
@@ -66,13 +67,13 @@ intersect(names(formals(read_csv)), names(formals(read_tsv)))
 identical(names(formals(read_csv)), names(formals(read_tsv)))
 ```
 
-> What are the most important arguments to read_fwf()?
+> What are the most important arguments to read\_fwf()?
 
-col_positions() which tells where data begin and end.
+col\_positions() which tells where data begin and end.
 
-> Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
+> Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read\_csv() assumes that the quoting character will be ", and if you want to change it you'll need to use read\_delim() instead. What arguments do you need to specify to read the following text into a data frame?
 
-For read_delim(), we will will need to specify a delimiter, in this case ",", and a quote argument.
+For read\_delim(), we will will need to specify a delimiter, in this case ",", and a quote argument.
 
 ```{r}
 
@@ -100,19 +101,18 @@ read_delim("a;b\n1;3", ";")
 
 ```
 
-
 ### 11.3 Parsing a vector
 
 > What are the most important arguments to locale()?
 
 The locale object has arguments to set the following:
 
-* date and time formats: date_names, date_format, and time_format
-* time zone: tz
-* numbers: decimal_mark, grouping_mark
-* encoding: encoding
+-   date and time formats: date\_names, date\_format, and time\_format
+-   time zone: tz
+-   numbers: decimal\_mark, grouping\_mark
+-   encoding: encoding
 
-> What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default value of grouping_mark when you set decimal_mark to ","? What happens to the default value of decimal_mark when you set the grouping_mark to "."?
+> What happens if you try and set decimal\_mark and grouping\_mark to the same character? What happens to the default value of grouping\_mark when you set decimal\_mark to ","? What happens to the default value of decimal\_mark when you set the grouping\_mark to "."?
 
 ```{r}
 locale(decimal_mark = ",")
@@ -140,10 +140,7 @@ parse_time(time_custom, locale = custom_local)
 
 > Programs that identify the encoding of text include:
 
-readr::guess_encoding()
-stringi::str_enc_detect()
-iconv
-chardet (Python)
+readr::guess\_encoding() stringi::str\_enc\_detect() iconv chardet (Python)
 
 ## 12 Tidy data
 
@@ -160,9 +157,10 @@ stocks %>%
   pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
 ```
 
-_The functions pivot_longer() and pivot_wider() are not perfectly symmetrical because column type information is lost when a data frame is converted from wide to long. The function pivot_longer() stacks multiple columns which may have had multiple data types into a single column with a single data type. This transformation throws away the individual data types of the original columns. The function pivot_wider() creates column names from values in column. These column names will always be treated as character values by pivot_longer() so if the original variable used to create the column names did not have a character data type, then the round-trip will not reproduce the same dataset._
+*The functions pivot\_longer() and pivot\_wider() are not perfectly symmetrical because column type information is lost when a data frame is converted from wide to long. The function pivot\_longer() stacks multiple columns which may have had multiple data types into a single column with a single data type. This transformation throws away the individual data types of the original columns. The function pivot\_wider() creates column names from values in column. These column names will always be treated as character values by pivot\_longer() so if the original variable used to create the column names did not have a character data type, then the round-trip will not reproduce the same dataset.*
 
-In the current version of tidyr, the names_ptype argument does not convert the year column to a numeric vector, and it will raise an error.
+In the current version of tidyr, the names\_ptype argument does not convert the year column to a numeric vector, and it will raise an error.
+
 ```{r}
 stocks <- tibble(
   year   = c(2015, 2015, 2016, 2016),
@@ -176,7 +174,7 @@ stocks %>% pivot_wider(names_from = year, values_from = return) %>%
 
 ```
 
-Instead, use the names_transform argument to pivot_longer(), which provides a function to coerce the column to a different data type.
+Instead, use the names\_transform argument to pivot\_longer(), which provides a function to coerce the column to a different data type.
 
 ```{r}
 stocks %>% pivot_wider(names_from = year, values_from = return) %>%
@@ -184,6 +182,7 @@ stocks %>% pivot_wider(names_from = year, values_from = return) %>%
 ```
 
 #### Exercise 12.3.3
+
 > What would happen if you widen this table? Why? How could you add a new column to uniquely identify each value?
 
 ```{r}
@@ -209,7 +208,6 @@ people%>%distinct(name, key, .keep_all = T)%>%
 ```
 
 > Tidy the simple tibble below. Do you need to make it wider or longer? What are the variables?
-
 
 ```{r}
 preg <- tribble(
@@ -254,7 +252,7 @@ tibble(x = c("a,b,c", "d,e", "f,g,h")) %>%
 
 > Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE
 
-_The remove argument discards input columns in the result data frame. You would set it to FALSE if you want to create a new variable, but keep the old one._
+*The remove argument discards input columns in the result data frame. You would set it to FALSE if you want to create a new variable, but keep the old one.*
 
 > Compare and contrast separate() and extract(), Why are there three variations of separation (by position, by separator, and with groups), but only one unite?
 
@@ -276,9 +274,9 @@ tibble(variable = c("X", "X", "Y", "Y"), id = c(1, 2, 1, 2)) %>%
   unite(x, variable, id, sep = "_")
 ```
 
-
 #### 12.5 Missing values
->Compare and contrast the fill arguments to pivot_wider() and complete().
+
+> Compare and contrast the fill arguments to pivot\_wider() and complete().
 
 ```{r}
 stocks <- tibble(
@@ -332,7 +330,6 @@ who5 %>% group_by(country, year, sex) %>% filter(year>1995) %>%
   ggplot(aes(x = year, y = cases, group = country_sex, colour = sex)) +geom_line()
 ```
 
-
 ## 13 Relational data
 
 ```{r}
@@ -340,6 +337,7 @@ library("tidyverse")
 library("nycflights13")
 library("viridis")
 library("datamodelr") #The datamodelr package is used to draw database schema. devtools::install_github("bergant/datamodelr")
+
 ```
 
 #### 13.2 nycflights13
@@ -348,8 +346,21 @@ library("datamodelr") #The datamodelr package is used to draw database schema. d
 
 Latitude and longitude of the origin and destination for each flight.
 
+```{r}
+flights
+airports
 
+flights_geo <- flights %>%
+  inner_join(select(airports, origin = faa, origin_lat = lat, origin_lon = lon), by = "origin") %>%
+  inner_join(select(airports, dest = faa, dest_lat = lat, dest_lon = lon), by = "dest")
 
+flights_geo%>% slice(1:100) %>%
+  ggplot(
+    aes(
+      x = origin_lon, xend = dest_lon,
+      y = origin_lat, yend = dest_lat
+    )
+  ) + borders("state") + 
+  geom_segment(arrow = arrow(length = unit(0.2, "cm")), color = "blue") + coord_quickmap() + labs(y = "Latitude", x = "Longitude")
 
-
-
+```
