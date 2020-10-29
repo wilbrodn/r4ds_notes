@@ -1,0 +1,88 @@
+---
+title: "Chapter 14 to 16"
+output: html_notebook
+---
+
+## 14. Strings
+
+### 14.3 Matching patterns with regular expressions
+
+Basic matches
+
+```{r}
+library(tidyverse)
+x <- c("apples", "bananas", "pears", "man.goes")
+str_view(x, ".a.")
+str_view_all(x, ".a.")
+str_view(x, "\\.")
+str_view(x, "n\\.")
+y <- "a\\b"
+y; writeLines(y)
+str_view(y, "\\\\")
+```
+
+*Anchors*
+
+By default, regular expressions will match any part of a string. It’s often useful to anchor the regular expression so that it matches from the start or end of the string. You can use:
+
+^ to match the start of the string.
+$ to match the end of the string.
+You can also match the boundary between words with \b "\bsum\b" is the same as "^sum$"
+
+
+*14.3.3 Character classes and alternatives*
+
+There are a number of special patterns that match more than one character. You’ve already seen ., which matches any character apart from a newline. There are four other useful tools:
+
+\d: matches any digit.
+\s: matches any whitespace (e.g. space, tab, newline).
+[abc]: matches a, b, or c.
+[^abc]: matches anything except a, b, or c.
+Remember, to create a regular expression containing \d or \s, you’ll need to escape the \ for the string, so you’ll type "\\d" or "\\s".
+
+This works for most (but not all) regex metacharacters: $ . | ? * + ( ) [ {. Unfortunately, a few characters have special meaning even inside a character class and must be handled with backslash escapes: ] \ ^ and -.
+
+You can use alternation to pick between one or more alternative patterns. For example, abc|d..f will match either ‘“abc”’, or "deaf". Note that the precedence for | is low, so that abc|xyz matches abc or xyz not abcyz or abxyz. Like with mathematical expressions, if precedence ever gets confusing, use parentheses to make it clear what you want:
+
+```{r}
+str_view(c("abc", "a.c", "a*c", "a c"), "a[.]c")
+str_view(c("abc", "a.c", "a*c", "a c"), ".[*]c")
+str_view(c("abc", "a.c", "a*c", "a c"), "a[ ]")
+
+str_view(c("grey", "gray"), "gr(e|a)y")
+
+```
+
+*14.3.4 Repetition*
+The next step up in power involves controlling how many times a pattern matches:
+
+?: 0 or 1
++: 1 or more
+*: 0 or more
+
+
+*14.3.5 Grouping and backreferences*
+Earlier, you learned about parentheses as a way to disambiguate complex expressions. Parentheses also create a numbered capturing group (number 1, 2 etc.). A capturing group stores the part of the string matched by the part of the regular expression inside the parentheses. You can refer to the same text as previously matched by a capturing group with backreferences, like \1, \2 etc. For example, the following regular expression finds all fruits that have a repeated pair of letters.
+
+```{r}
+str_view(fruit, "(p)\\1", match = TRUE)
+str_view(fruit, "(an)\\1", match = TRUE)
+str_view(fruit, "(.)\\1", match = TRUE)
+str_view(fruit, "(..)\\1", match = TRUE)
+
+str_view(fruit, "(.)(.)\\2\\1", match = TRUE)
+str_view(fruit, "(.).\\1.\\1", match = TRUE)
+str_view(fruit, "(.)(.)(.).*\\3\\2\\1", match = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
