@@ -1,5 +1,5 @@
 ---
-title: "Chapter 9 to 16: Wrangle"
+title: "Chapter 9 to 13: Wrangle"
 outtput: html_notebook
 ---
 
@@ -364,3 +364,5 @@ flights_geo%>% slice(1:100) %>%
   geom_segment(arrow = arrow(length = unit(0.2, "cm")), color = "blue") + coord_quickmap() + labs(y = "Latitude", x = "Longitude")
 
 ```
+
+
