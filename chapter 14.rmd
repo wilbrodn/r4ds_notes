@@ -76,7 +76,108 @@ str_view(fruit, "(.)(.)(.).*\\3\\2\\1", match = TRUE)
 ```
 
 
+### 14.4 Tools
 
+In this section you’ll learn a wide array of stringr functions that let you:
+
+* Determine which strings match a pattern.
+* Find the positions of matches.
+* Extract the content of matches.
+* Replace matches with new values.
+* Split a string based on a match.
+
+```{r}
+x <- c("apple", "banana", "apple", "oranges")
+
+str_detect(x, "e") ##returns a logical vector
+#hwo many words in words dataset end with d
+sum(str_detect(words, "d$"))
+#proportion that starts with a vowel, vowels are aeiou. How about ends wit a vowel
+mean(str_detect(words, "^[aeiou]")) #start
+mean(str_detect(words, "[aeiou]$")) #ends
+
+# Find all words containing at least one vowel, and negate
+no_vowels_1 <- !str_detect(words, "[aeiou]")
+# Find all words consisting only of consonants (non-vowels)
+no_vowels_2 <- str_detect(words, "^[^aeiou]+$")
+words[247:251]
+str_detect(words[247:251], "^[^aeiou]+$")
+identical(no_vowels_1, no_vowels_2)
+
+#A common use of str_detect() is to select the elements that match a pattern.
+#select words that end with x
+words[str_detect(words, "x$")]
+##or just
+str_subset(words, "x$")
+```
+
+
+```{r}
+x <- c("apple", "banana", "pear")
+str_count(x, "a")
+
+mean(str_count(words, "[aeiou]"))
+
+str_view(x, "a"); str_view_all(x, "a")
+
+head(sentences)
+length(sentences)
+
+colours <- c("red", "orange", "yellow", "green", "blue", "purple")
+colour_match <- str_c(colours, collapse = "|")
+colour_match
+
+has_colour <- str_subset(sentences, colour_match)
+head(has_colour)
+length(has_colour)
+matches <- str_extract(has_colour, colour_match)
+head(matches)
+length(matches)
+more <- sentences[str_count(sentences, colour_match)>1]
+head(more)
+str_view_all(more, colour_match)
+str_extract(more, colour_match) #first matches are selected per sentence
+str_extract_all(more, colour_match) #returns a list with all matches
+str_extract_all(more, colour_match, simplify = TRUE)
+##more extract examples
+
+x<- c("a", "ab", "a bc", "a b c")
+str_extract_all(x, "[a-z]", simplify = TRUE)
+```
+
+#### 14.4.3 Grouped Matches
+
+```{r}
+noun <- "(a|the) ([^ ]+)"
+(has_noun <- sentences %>%
+  str_subset(noun) %>%
+  head(10))
+has_noun %>% str_extract(noun)
+#str_match() gives each individual component. Instead of a character vector, it returns a matrix, with one column for the complete match followed by one column for each group:
+has_noun %>% str_match(noun)
+
+tibble(sentence=sentences) %>%
+  tidyr::extract(
+    sentence, c("article", "noun"), "(a|the) ([^ ]+)", remove = FALSE
+  )
+
+```
+
+#### replacing matches
+```{r}
+x <- c("apple", "pear", "banana")
+str_replace(x, "[aeiou]", "-")
+str_replace_all(x, "[aeiou]", "-")
+
+#Instead of replacing with a fixed string you can use backreferences to insert components of the match. In the following code, I flip the order of the second and third words.
+sentences %>% 
+  str_replace("([^ ]+) ([^ ]+) ([^ ]+)", "\\1 \\3 \\2") %>% 
+  head(5)
+
+```
+
+
+## Factors
 
 
 
