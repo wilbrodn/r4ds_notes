@@ -251,7 +251,47 @@ head(dir(pattern = "\\.Rmd$"))
 ```
 
 
-## Factors
+# Factors
+
+### read the book and re check ordering factors by x axis in ggplot charts
+
+
+# Dates and Time
+
+```{r}
+library(lubridate)
+today()
+now()
+
+ymd("2020-09-20")
+mdy("September 20th, 2020")
+dmy("20/9/2020")
+ymd("20200930", tz = "UTC")
+
+ymd_hms("20201030 11:27:15")
+
+##How old is wilbrod?
+w_age <- today() - ymd(19890621)
+w_age
+as.duration(w_age)
+
+##intervals
+years(1)/days(1) #supposed to be 366
+next_year <- today() + years(1)
+(today() %--% next_year) / ddays(1)
+(today() %--% next_year) %/% days(1) ##integer division much better
+
+##Timezones
+head(OlsonNames())
+t1 <- now()
+t11 <- with_tz(t1, tzone = "Australia/Lord_Howe")
+t111 <- force_tz(t1, tzone = "Australia/Lord_Howe")
+
+t1; t11; t111
+```
+
+
+
 
 
 
